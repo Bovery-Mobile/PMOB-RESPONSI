@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Title -->
+    <TextView
+        android:text="Syarat &amp; Ketentuan"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- Info Card -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_input"
+        android:padding="16dp"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:text="Penting\nMohon baca dan pahami seluruh syarat &amp; ketentuan sebelum melanjutkan proses pendaftaran."
+            android:textColor="@color/text_secondary"
+            android:lineSpacingExtra="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <!-- Terms Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_input"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- ITEM 1 -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:text="1."
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="Hak dan Kewajiban Pengguna\nPengguna berhak mengakses koleksi buku digital dan fisik sesuai ketentuan. Pengguna wajib menjaga kerahasiaan akun dan kata sandi."
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingExtra="6dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <!-- ITEM 2 -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:text="2."
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="Keamanan Data\nKami berkomitmen melindungi data pribadi pengguna sesuai kebijakan privasi yang berlaku."
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingExtra="6dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <!-- ITEM 3 -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:text="3."
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="Penggunaan Konten\nSeluruh konten buku dilindungi hak cipta dan tidak boleh disebarluaskan tanpa izin resmi."
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingExtra="6dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <!-- ITEM 4 -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:text="4."
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="Sanksi\nPelanggaran terhadap syarat dan ketentuan dapat mengakibatkan pembatasan akses hingga penonaktifan akun."
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingExtra="6dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Agreement -->
+    <CheckBox
+        android:id="@+id/cbAgree"
+        android:text="Saya telah membaca dan menyetujui Syarat &amp; Ketentuan"
+        android:textColor="@color/text_secondary"
+        android:layout_marginTop="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <!-- Button -->
+    <Button
+        android:id="@+id/btnContinue"
+        android:text="Lanjutkan"
+        android:textColor="@color/text_secondary"
+        android:background="@drawable/bg_button_disabled"
+        android:enabled="false"
+        android:layout_marginTop="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"/>
+
+
+</LinearLayout>
