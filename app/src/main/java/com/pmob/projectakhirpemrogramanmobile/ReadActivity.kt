@@ -1,24 +1,26 @@
 package com.pmob.projectakhirpemrogramanmobile
 
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-
+import com.pmob.projectakhirpemrogramanmobile.databinding.ActivityReadBinding
 
 class ReadActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityReadBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_read)
+
+        binding = ActivityReadBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val title = intent.getStringExtra("BOOK_TITLE") ?: ""
         val content = intent.getStringExtra("BOOK_CONTENT") ?: "Preview content..."
 
-        findViewById<TextView>(R.id.tvReadTitle).text = title
-        findViewById<TextView>(R.id.tvReadContent).text = content
+        binding.tvReadTitle.text = title
+        binding.tvReadContent.text = content
 
-        findViewById<ImageView>(R.id.ivBackRead).setOnClickListener {
+        binding.ivBackRead.setOnClickListener {
             finish()
         }
     }

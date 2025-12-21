@@ -6,38 +6,28 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.ChipGroup
+import com.pmob.projectakhirpemrogramanmobile.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
-import kotlin.text.category
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var contentLayout: LinearLayout
-    private lateinit var etSearch: EditText
-    private lateinit var chipGroup: ChipGroup
-    private lateinit var progressBar: ProgressBar
+    private lateinit var binding: ActivityMainBinding
     private lateinit var repository: BookRepository
 
-    private var allBooks = mutableListOf<Book>()
+    private val allBooks = mutableListOf<Book>()
     private var filteredBooks = mutableListOf<Book>()
     private var isLoading = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        contentLayout = findViewById(R.id.contentLayout)
-        etSearch = findViewById(R.id.etSearch)
-        chipGroup = findViewById(R.id.chipGroup)
-        progressBar = findViewById(R.id.progressBar)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         repository = BookRepository()
 
@@ -46,12 +36,13 @@ class MainActivity : AppCompatActivity() {
         loadInitialBooks()
     }
 
+    // ===================== LOAD DATA =====================
+
     private fun loadInitialBooks() {
         showLoading(true)
 
         lifecycleScope.launch {
             try {
-                // Load books dari berbagai kategori
                 val categorizedBooks = repository.getPopularBooks()
 
                 allBooks.clear()
@@ -62,30 +53,32 @@ class MainActivity : AppCompatActivity() {
                 filteredBooks.clear()
                 filteredBooks.addAll(allBooks)
 
-                runOnUiThread {
-                    showLoading(false)
-                    displayCategories(categorizedBooks)
-                }
+                showLoading(false)
+                displayCategories(categorizedBooks)
+
             } catch (e: Exception) {
                 e.printStackTrace()
-                runOnUiThread {
-                    showLoading(false)
-                    showError("Gagal memuat data. Periksa koneksi internet.")
-                }
+                showLoading(false)
+                showError("Gagal memuat data. Periksa koneksi internet.")
             }
         }
     }
 
-    private fun setupSearch() {
-        etSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+    // ===================== SEARCH =====================
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+    private fun setupSearch() {
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence?, start: Int, count: Int, after: Int
+            ) {}
+
+            override fun onTextChanged(
+                s: CharSequence?, start: Int, before: Int, count: Int
+            ) {
                 val query = s.toString().trim()
-                if (query.length >= 3) {
-                    searchBooks(query)
-                } else if (query.isEmpty()) {
-                    loadInitialBooks()
+                when {
+                    query.length >= 3 -> searchBooks(query)
+                    query.isEmpty() -> loadInitialBooks()
                 }
             }
 
@@ -101,50 +94,33 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val books = repository.searchBooks(query)
+
                 allBooks.clear()
                 allBooks.addAll(books)
 
-                filterBooks(query)
+                filteredBooks = allBooks.toMutableList()
+                updateDisplay()
 
-                runOnUiThread {
-                    showLoading(false)
-                }
             } catch (e: Exception) {
                 e.printStackTrace()
-                runOnUiThread {
-                    showLoading(false)
-                    showError("Gagal mencari buku")
-                }
+                showLoading(false)
+                showError("Gagal mencari buku")
             }
         }
     }
 
+    // ===================== CHIP FILTER =====================
+
     private fun setupChipFilters() {
-        chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+        binding.chipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             if (checkedIds.isEmpty()) return@setOnCheckedStateChangeListener
 
-            val selectedChipId = checkedIds[0]
-            val query = etSearch.text.toString().trim().lowercase()
+            val query = binding.etSearch.text.toString().trim().lowercase()
 
-            when (selectedChipId) {
-                R.id.chipAll -> {
-                    filteredBooks.clear()
-                    filteredBooks.addAll(allBooks)
-                }
-                R.id.chipFiction -> {
-                    filteredBooks = allBooks.filter { book ->
-                        book.genres.any { it.contains("FICTION", ignoreCase = true) } ||
-                                book.category.contains("Fiction", ignoreCase = true) ||
-                                book.category.contains("Fiksi", ignoreCase = true)
-                    }.toMutableList()
-                }
-                R.id.chipClassic -> {
-                    filteredBooks = allBooks.filter { book ->
-                        book.genres.any { it.contains("CLASSIC", ignoreCase = true) } ||
-                                book.category.contains("Classic", ignoreCase = true) ||
-                                book.category.contains("Klasik", ignoreCase = true)
-                    }.toMutableList()
-                }
+            filteredBooks = when (checkedIds[0]) {
+                R.id.chipFiction -> filterByCategory("Fiction", "Fiksi", "FICTION")
+                R.id.chipClassic -> filterByCategory("Classic", "Klasik", "CLASSIC")
+                else -> allBooks.toMutableList()
             }
 
             if (query.isNotEmpty()) {
@@ -158,38 +134,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun filterBooks(query: String) {
-        if (query.isEmpty()) {
-            filteredBooks.clear()
-            filteredBooks.addAll(allBooks)
-        } else {
-            val baseFilter = when (chipGroup.checkedChipId) {
-                R.id.chipFiction -> {
-                    allBooks.filter { book ->
-                        book.genres.any { it.contains("FICTION", ignoreCase = true) } ||
-                                book.category.contains("Fiction", ignoreCase = true)
-                    }
-                }
-                R.id.chipClassic -> {
-                    allBooks.filter { book ->
-                        book.genres.any { it.contains("CLASSIC", ignoreCase = true) } ||
-                                book.category.contains("Classic", ignoreCase = true)
-                    }
-                }
-                else -> allBooks
+    private fun filterByCategory(
+        vararg keywords: String
+    ): MutableList<Book> {
+        return allBooks.filter { book ->
+            keywords.any { key ->
+                book.category.contains(key, ignoreCase = true) ||
+                        book.genres.any { it.contains(key, ignoreCase = true) }
             }
-
-            filteredBooks = baseFilter.filter { book ->
-                book.title.lowercase().contains(query.lowercase()) ||
-                        book.author.lowercase().contains(query.lowercase())
-            }.toMutableList()
-        }
-
-        updateDisplay()
+        }.toMutableList()
     }
 
+    // ===================== DISPLAY =====================
+
     private fun updateDisplay() {
-        contentLayout.removeAllViews()
+        binding.contentLayout.removeAllViews()
 
         if (filteredBooks.isEmpty()) {
             showEmpty()
@@ -201,7 +160,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayCategories(categorizedBooks: Map<String, List<Book>>) {
-        contentLayout.removeAllViews()
+        binding.contentLayout.removeAllViews()
 
         categorizedBooks.forEach { (category, books) ->
             addCategorySection(category, books)
@@ -210,10 +169,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun addCategorySection(category: String, books: List<Book>) {
         val categoryView = LayoutInflater.from(this)
-            .inflate(R.layout.item_category_section, contentLayout, false)
+            .inflate(R.layout.item_category_section, binding.contentLayout, false)
 
-        val tvCategoryTitle = categoryView.findViewById<TextView>(R.id.tvCategoryTitle)
-        val rvBooks = categoryView.findViewById<RecyclerView>(R.id.rvBooks)
+        val tvCategoryTitle =
+            categoryView.findViewById<TextView>(R.id.tvCategoryTitle)
+        val rvBooks =
+            categoryView.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvBooks)
 
         tvCategoryTitle.text = category
 
@@ -223,28 +184,34 @@ class MainActivity : AppCompatActivity() {
             false
         )
 
-        val adapter = BookAdapter(books) { book ->
-            val intent = Intent(this, DetailBookActivity::class.java)
-            intent.putExtra("BOOK_ID", book.id)
-            intent.putExtra("BOOK_TITLE", book.title)
-            intent.putExtra("BOOK_AUTHOR", book.author)
-            intent.putExtra("BOOK_COVER", book.coverUrl)
-            intent.putExtra("BOOK_RATING", book.rating)
-            intent.putExtra("BOOK_YEAR", book.publishedYear)
-            intent.putExtra("BOOK_PAGES", book.pages)
-            intent.putExtra("BOOK_SYNOPSIS", book.synopsis)
-            intent.putExtra("BOOK_PRICE", book.price)
-            intent.putStringArrayListExtra("BOOK_GENRES", ArrayList(book.genres))
-            startActivity(intent)
+        rvBooks.adapter = BookAdapter(books) { book ->
+            Intent(this, DetailBookActivity::class.java).apply {
+                putExtra("BOOK_ID", book.id)
+                putExtra("BOOK_TITLE", book.title)
+                putExtra("BOOK_AUTHOR", book.author)
+                putExtra("BOOK_COVER", book.coverUrl)
+                putExtra("BOOK_RATING", book.rating)
+                putExtra("BOOK_YEAR", book.publishedYear)
+                putExtra("BOOK_PAGES", book.pages)
+                putExtra("BOOK_SYNOPSIS", book.synopsis)
+                putExtra("BOOK_PRICE", book.price)
+                putStringArrayListExtra(
+                    "BOOK_GENRES",
+                    ArrayList(book.genres)
+                )
+                startActivity(this)
+            }
         }
 
-        rvBooks.adapter = adapter
-        contentLayout.addView(categoryView)
+        binding.contentLayout.addView(categoryView)
     }
+
+    // ===================== UI STATE =====================
 
     private fun showLoading(show: Boolean) {
         isLoading = show
-        progressBar.visibility = if (show) View.VISIBLE else View.GONE
+        binding.progressBar.visibility =
+            if (show) View.VISIBLE else View.GONE
     }
 
     private fun showEmpty() {
@@ -255,7 +222,7 @@ class MainActivity : AppCompatActivity() {
             setPadding(32, 64, 32, 32)
             textAlignment = TextView.TEXT_ALIGNMENT_CENTER
         }
-        contentLayout.addView(emptyView)
+        binding.contentLayout.addView(emptyView)
     }
 
     private fun showError(message: String) {
@@ -266,6 +233,6 @@ class MainActivity : AppCompatActivity() {
             setPadding(32, 64, 32, 32)
             textAlignment = TextView.TEXT_ALIGNMENT_CENTER
         }
-        contentLayout.addView(errorView)
+        binding.contentLayout.addView(errorView)
     }
 }

@@ -2,21 +2,21 @@ package com.pmob.projectakhirpemrogramanmobile
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import com.pmob.projectakhirpemrogramanmobile.databinding.ActivityDetailBookBinding
 
 class DetailBookActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityDetailBookBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_detail_book)
+
+        binding = ActivityDetailBookBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Ambil data dari Intent
         val title = intent.getStringExtra("BOOK_TITLE") ?: "Unknown"
@@ -30,24 +30,14 @@ class DetailBookActivity : AppCompatActivity() {
         val genres = intent.getStringArrayListExtra("BOOK_GENRES") ?: arrayListOf()
 
         setupViews(
-            title,
-            author,
-            coverUrl,
-            rating,
-            year,
-            pages,
-            synopsis,
-            genres
+            title, author, coverUrl,
+            rating, year, pages,
+            synopsis, genres
         )
 
         setupListeners(
-            title,
-            author,
-            coverUrl,
-            rating,
-            pages,
-            synopsis,
-            price
+            title, author, coverUrl,
+            rating, pages, synopsis, price
         )
     }
 
@@ -60,44 +50,39 @@ class DetailBookActivity : AppCompatActivity() {
         pages: Int,
         synopsis: String,
         genres: ArrayList<String>
-    ) {
-        findViewById<ImageView>(R.id.ivBack).setOnClickListener { finish() }
+    ) = with(binding) {
 
-        findViewById<TextView>(R.id.tvBookTitle).text = title
-        findViewById<TextView>(R.id.tvAuthor).text = author
-        findViewById<TextView>(R.id.tvRating).text = String.format("%.1f", rating)
-        findViewById<TextView>(R.id.tvPublished).text = year.toString()
-        findViewById<TextView>(R.id.tvPages).text = pages.toString()
-        findViewById<TextView>(R.id.tvSynopsis).text = synopsis
+        ivBack.setOnClickListener { finish() }
 
-        Glide.with(this)
+        tvBookTitle.text = title
+        tvAuthor.text = author
+        tvRating.text = String.format("%.1f", rating)
+        tvPublished.text = year.toString()
+        tvPages.text = pages.toString()
+        tvSynopsis.text = synopsis
+
+        Glide.with(this@DetailBookActivity)
             .load(coverUrl)
             .placeholder(R.drawable.ic_launcher_background)
             .error(R.drawable.ic_launcher_background)
-            .into(findViewById(R.id.ivBookCover))
+            .into(ivBookCover)
 
-        val chipGroup = findViewById<ChipGroup>(R.id.genreChipGroup)
-        chipGroup.removeAllViews()
-        genres.forEach {
-            val chip = Chip(this)
-            chip.text = it
-            chip.isClickable = false
-            chip.isCheckable = false
-            chipGroup.addView(chip)
+        genreChipGroup.removeAllViews()
+        genres.forEach { genre ->
+            val chip = Chip(this@DetailBookActivity).apply {
+                text = genre
+                isClickable = false
+                isCheckable = false
+            }
+            genreChipGroup.addView(chip)
         }
 
-        val tvSynopsis = findViewById<TextView>(R.id.tvSynopsis)
-        val tvReadMore = findViewById<TextView>(R.id.tvReadMore)
-
+        // Read More / Less
         tvSynopsis.maxLines = 4
         tvReadMore.setOnClickListener {
-            if (tvSynopsis.maxLines == 4) {
-                tvSynopsis.maxLines = Int.MAX_VALUE
-                tvReadMore.text = "Read Less ▲"
-            } else {
-                tvSynopsis.maxLines = 4
-                tvReadMore.text = "Read More ▼"
-            }
+            val expanded = tvSynopsis.maxLines != 4
+            tvSynopsis.maxLines = if (expanded) 4 else Int.MAX_VALUE
+            tvReadMore.text = if (expanded) "Read More ▼" else "Read Less ▲"
         }
     }
 
@@ -109,38 +94,44 @@ class DetailBookActivity : AppCompatActivity() {
         pages: Int,
         synopsis: String,
         price: Double
-    ) {
-        findViewById<ImageView>(R.id.ivShare).setOnClickListener {
-            Toast.makeText(this, "Share coming soon", Toast.LENGTH_SHORT).show()
+    ) = with(binding) {
+
+        ivShare.setOnClickListener {
+            Toast.makeText(
+                this@DetailBookActivity,
+                "Share coming soon",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
-        findViewById<ImageView>(R.id.ivBookmark).setOnClickListener {
-            Toast.makeText(this, "Added to bookmark", Toast.LENGTH_SHORT).show()
+        ivBookmark.setOnClickListener {
+            Toast.makeText(
+                this@DetailBookActivity,
+                "Added to bookmark",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
-        findViewById<MaterialButton>(R.id.btnBuy).apply {
-            text = "Buy $${String.format("%.2f", price)}"
-            setOnClickListener {
-                val intent = Intent(this@DetailBookActivity, BuyActivity::class.java)
-                intent.putExtra("BOOK_TITLE", title)
-                intent.putExtra("BOOK_PRICE", price)
-                intent.putExtra("BOOK_COVER", coverUrl) // ⬅️ INI SAJA
-
-
-                startActivity(intent)
+        btnBuy.text = "Buy $${String.format("%.2f", price)}"
+        btnBuy.setOnClickListener {
+            Intent(this@DetailBookActivity, BuyActivity::class.java).apply {
+                putExtra("BOOK_TITLE", title)
+                putExtra("BOOK_PRICE", price)
+                putExtra("BOOK_COVER", coverUrl)
+                startActivity(this)
             }
         }
 
-        findViewById<MaterialButton>(R.id.btnReadNow).setOnClickListener {
-            val intent = Intent(this@DetailBookActivity, PreviewActivity::class.java)
-            intent.putExtra("BOOK_TITLE", title)
-            intent.putExtra("BOOK_AUTHOR", author)
-            intent.putExtra("BOOK_COVER", coverUrl)
-            intent.putExtra("BOOK_RATING", rating)
-            intent.putExtra("BOOK_PAGES", pages)
-            intent.putExtra("BOOK_SYNOPSIS", synopsis)
-            startActivity(intent)
+        btnReadNow.setOnClickListener {
+            Intent(this@DetailBookActivity, PreviewActivity::class.java).apply {
+                putExtra("BOOK_TITLE", title)
+                putExtra("BOOK_AUTHOR", author)
+                putExtra("BOOK_COVER", coverUrl)
+                putExtra("BOOK_RATING", rating)
+                putExtra("BOOK_PAGES", pages)
+                putExtra("BOOK_SYNOPSIS", synopsis)
+                startActivity(this)
+            }
         }
     }
 }
-
