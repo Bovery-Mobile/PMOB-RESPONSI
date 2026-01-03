@@ -1,4 +1,4 @@
-package com.pmob.projectakhirpemrogramanmobile.ui.home
+package com.pmob.projectakhirpemrogramanmobile
 
 import android.content.Intent
 import android.os.Bundle

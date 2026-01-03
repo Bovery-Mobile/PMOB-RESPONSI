@@ -1,4 +1,4 @@
-package com.pmob.projectakhirpemrogramanmobile.ui.profile
+package com.pmob.projectakhirpemrogramanmobile
 
 import android.Manifest
 import android.content.Context

@@ -80,6 +80,9 @@
         <activity
             android:name=".SuccessActivity"
             android:exported="false" />
+        <activity
+            android:name=".PurchaseDetailActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -164,6 +164,7 @@ class PaymentActivity : AppCompatActivity() {
     private fun saveOrderToFirebase(snapToken: String, redirectUrl: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
+        // Simpan ke node "orders" (untuk tracking transaksi)
         val db = FirebaseDatabase.getInstance()
             .getReference("orders")
             .child(uid)
@@ -182,9 +183,38 @@ class PaymentActivity : AppCompatActivity() {
         db.setValue(orderData)
             .addOnSuccessListener {
                 Log.d("PaymentActivity", "Order saved to Firebase")
+                // Juga simpan ke "purchases" untuk riwayat pembelian
+                savePurchaseHistory(uid)
             }
             .addOnFailureListener { e ->
                 Log.e("PaymentActivity", "Failed to save order", e)
+            }
+    }
+
+    // ================== SIMPAN PURCHASE HISTORY ==================
+    private fun savePurchaseHistory(uid: String) {
+        val purchaseDb = FirebaseDatabase.getInstance()
+            .getReference("purchases")
+            .child(uid)
+            .child(currentOrderId ?: return)
+
+        val purchaseData = HashMap<String, Any>()
+        purchaseData["id"] = currentOrderId ?: ""
+        purchaseData["title"] = bookTitle
+        purchaseData["price"] = bookPrice
+        purchaseData["timestamp"] = System.currentTimeMillis()
+        purchaseData["status"] = "pending"
+        purchaseData["method"] = "QRIS" // Default method
+        purchaseData["orderId"] = currentOrderId ?: ""
+        purchaseData["transactionId"] = ""
+        purchaseData["bookCover"] = bookCover ?: ""
+
+        purchaseDb.setValue(purchaseData)
+            .addOnSuccessListener {
+                Log.d("PaymentActivity", "Purchase history saved to Firebase")
+            }
+            .addOnFailureListener { e ->
+                Log.e("PaymentActivity", "Failed to save purchase history", e)
             }
     }
 

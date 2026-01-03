@@ -5,9 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.midtrans.sdk.uikit.SdkUIFlowBuilder
 import com.pmob.projectakhirpemrogramanmobile.databinding.ActivityMainBinding
-import com.pmob.projectakhirpemrogramanmobile.ui.history.HistoryFragment
-import com.pmob.projectakhirpemrogramanmobile.ui.home.HomeFragment
-import com.pmob.projectakhirpemrogramanmobile.ui.profile.ProfileFragment
 
 class MainActivity : AppCompatActivity() {
 

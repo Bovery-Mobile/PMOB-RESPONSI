@@ -1,5 +1,6 @@
-package com.pmob.projectakhirpemrogramanmobile.ui.history
+package com.pmob.projectakhirpemrogramanmobile
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -11,8 +12,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.pmob.projectakhirpemrogramanmobile.Purchase
-import com.pmob.projectakhirpemrogramanmobile.PurchaseAdapter
 import com.pmob.projectakhirpemrogramanmobile.R
 import com.pmob.projectakhirpemrogramanmobile.databinding.FragmentHistoryBinding
 
@@ -27,7 +26,12 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
 
         binding = FragmentHistoryBinding.bind(view)
 
-        adapter = PurchaseAdapter(purchaseList)
+        adapter = PurchaseAdapter(purchaseList) { purchase ->
+            // Handle click
+            val intent = Intent(requireContext(), PurchaseDetailActivity::class.java)
+            intent.putExtra("PURCHASE", purchase)
+            startActivity(intent)
+        }
         binding.rvHistory.layoutManager = LinearLayoutManager(requireContext())
         binding.rvHistory.adapter = adapter
 
